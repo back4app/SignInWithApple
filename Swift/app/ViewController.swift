@@ -21,7 +21,8 @@ class AuthDelegate:NSObject, PFUserAuthenticationDelegate {
 }
 
 class ViewController: UIViewController, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
-    
+    var delegateLoaded = false
+
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         switch authorization.credential {
         case let credentials as ASAuthorizationAppleIDCredential:
@@ -34,7 +35,10 @@ class ViewController: UIViewController, ASAuthorizationControllerDelegate, ASAut
             print("TOKEN: \(tokenString)")
             print("USER: \(user)")
             
-            PFUser.register(AuthDelegate(), forAuthType: "apple")
+            if (! delegateLoaded){
+                PFUser.register(AuthDelegate(), forAuthType: "apple")
+                delegateLoaded = true
+            }
             
             PFUser.logInWithAuthType(inBackground: "apple", authData: ["token":tokenString, "id": user]).continueWith { task -> Any? in
 //                guard task.error == nil, let _ = task.result else {
